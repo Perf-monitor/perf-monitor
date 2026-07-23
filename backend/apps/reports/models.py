@@ -94,3 +94,27 @@ class PerformanceReport(models.Model):
         elif self.inp <= 500:
             return "needs-improvement"
         return "poor"
+
+
+class NetworkRequest(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    report = models.ForeignKey(PerformanceReport, on_delete=models.CASCADE, related_name="network_requests")
+    url = models.TextField()
+    resource_type = models.CharField(max_length=50)
+    status_code = models.IntegerField(null=True, blank=True)
+    mime_type = models.CharField(max_length=100, blank=True)
+    transfer_size = models.IntegerField(null=True, blank=True)
+    resource_size = models.IntegerField(null=True, blank=True)
+    duration_ms = models.FloatField(null=True, blank=True)
+    start_time_ms = models.FloatField(null=True, blank=True)
+    protocol = models.CharField(max_length=20, blank=True)
+    priority = models.CharField(max_length=20, blank=True)
+    cache = models.CharField(max_length=50, blank=True)
+    entity = models.CharField(max_length=255, blank=True)
+    finished = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ["start_time_ms"]
+
+    def __str__(self):
+        return f"{self.status_code} {self.resource_type} {self.url[:60]}"

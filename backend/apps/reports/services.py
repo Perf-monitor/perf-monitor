@@ -53,8 +53,16 @@ def parse_pagespeed_response(data: dict, project, strategy: str) -> PerformanceR
 
     lcp = audit_val("largest-contentful-paint")
     cls = audit_val("cumulative-layout-shift")
-    inp = audit_val("interaction-to-next-paint")
     fcp = audit_val("first-contentful-paint")
+
+    # INP is a field data (CrUX) metric — not available in Lighthouse lab data.
+    # Try loadingExperience first, then originLoadingExperience.
+    def _crux_inp(section_key):
+        section = data.get(section_key, {}).get("metrics", {})
+        metric = section.get("INTERACTION_TO_NEXT_PAINT", {})
+        return metric.get("percentile")
+
+    inp = _crux_inp("loadingExperience") or _crux_inp("originLoadingExperience")
     ttfb = audit_val("server-response-time")
     speed_index = audit_val("speed-index")
     tbt = audit_val("total-blocking-time")
@@ -86,9 +94,37 @@ def parse_pagespeed_response(data: dict, project, strategy: str) -> PerformanceR
         raw_response=data,
     )
 
+    # Parse and save network requests from the Lighthouse audit
+    from apps.reports.models import NetworkRequest
+    network_items = audits.get("network-requests", {}).get("details", {}).get("items", [])
+    network_requests = []
+    for item in network_items:
+        start = item.get("networkRequestTime") or item.get("rendererStartTime") or 0
+        end = item.get("networkEndTime") or 0
+        duration = max(end - start, 0) if end else None
+        network_requests.append(NetworkRequest(
+            report=report,
+            url=item.get("url", ""),
+            resource_type=item.get("resourceType", ""),
+            status_code=item.get("statusCode"),
+            mime_type=item.get("mimeType", ""),
+            transfer_size=item.get("transferSize"),
+            resource_size=item.get("resourceSize"),
+            duration_ms=round(duration, 2) if duration is not None else None,
+            start_time_ms=round(start, 2),
+            protocol=item.get("protocol", ""),
+            priority=item.get("priority", ""),
+            cache=item.get("cache", ""),
+            entity=item.get("entity", ""),
+            finished=item.get("finished", True),
+        ))
+    if network_requests:
+        NetworkRequest.objects.bulk_create(network_requests)
+
     logger.info(
         f"Saved report for {project.name} ({strategy}): "
-        f"perf={performance_score}, a11y={accessibility_score}, seo={seo_score}"
+        f"perf={performance_score}, a11y={accessibility_score}, seo={seo_score}, "
+        f"network_requests={len(network_requests)}"
     )
     return report
 

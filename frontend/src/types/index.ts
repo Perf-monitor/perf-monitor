@@ -47,6 +47,8 @@ export interface Project {
   latest_lcp: number | null;
   latest_cls: number | null;
   latest_inp: number | null;
+  latest_speed_index: number | null;
+  latest_tbt: number | null;
   last_scan: string | null;
   created_at: string;
   updated_at: string;
@@ -176,6 +178,92 @@ export interface ApiError {
   message: string;
   detail?: string;
   errors?: Record<string, string[]>;
+}
+
+// ── RUM Types ─────────────────────────────────────────────────────────────────
+
+export interface RumApplication {
+  id: string;
+  name: string;
+  api_key: string;
+  environment: string;
+  version: string;
+  allowed_origins: string;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+  total_events: number;
+  error_rate: number;
+}
+
+export interface RumEvent {
+  id: string;
+  api_url: string;
+  api_name: string;
+  method: string;
+  status_code: number | null;
+  success: boolean;
+  error_message: string;
+  response_time_ms: number | null;
+  dns_time_ms: number | null;
+  ttfb_ms: number | null;
+  download_time_ms: number | null;
+  page_url: string;
+  route_name: string;
+  environment: string;
+  app_version: string;
+  timestamp: string;
+}
+
+export interface RumApiStat {
+  api_url: string;
+  method: string;
+  calls: number;
+  avg_time: number;
+  min_time: number;
+  max_time: number;
+  error_count: number;
+  success_pct: number;
+}
+
+export interface RumDashboard {
+  total_calls: number;
+  active_users: number;
+  rpm: number;
+  avg_response_time_ms: number;
+  min_response_time_ms: number;
+  max_response_time_ms: number;
+  error_rate: number;
+  success_rate: number;
+  total_errors: number;
+  status_distribution: { status_code: number; count: number }[];
+  browser_distribution: { browser_name: string; count: number }[];
+  device_distribution: { device_type: string; count: number }[];
+  rpm_trend: { time: string; count: number }[];
+  hours: number;
+}
+
+export interface NetworkRequest {
+  id: string;
+  url: string;
+  resource_type: string;
+  status_code: number | null;
+  mime_type: string;
+  transfer_size: number | null;
+  resource_size: number | null;
+  duration_ms: number | null;
+  start_time_ms: number | null;
+  protocol: string;
+  priority: string;
+  cache: string;
+  entity: string;
+  finished: boolean;
+}
+
+export interface NetworkRequestsResponse {
+  report_id: string;
+  count: number;
+  results: NetworkRequest[];
 }
 
 export interface TrendDataPoint {

@@ -12,6 +12,8 @@ class ProjectSerializer(serializers.ModelSerializer):
     latest_lcp = serializers.SerializerMethodField()
     latest_cls = serializers.SerializerMethodField()
     latest_inp = serializers.SerializerMethodField()
+    latest_speed_index = serializers.SerializerMethodField()
+    latest_tbt = serializers.SerializerMethodField()
     last_scan = serializers.SerializerMethodField()
 
     class Meta:
@@ -22,7 +24,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             "deployment_version", "git_commit_id", "build_time",
             "status", "latest_performance", "latest_accessibility", "latest_seo",
             "latest_best_practices", "latest_lcp", "latest_cls", "latest_inp",
-            "last_scan", "created_at", "updated_at",
+            "latest_speed_index", "latest_tbt", "last_scan", "created_at", "updated_at",
         ]
         read_only_fields = ["id", "owner", "created_at", "updated_at"]
 
@@ -61,6 +63,14 @@ class ProjectSerializer(serializers.ModelSerializer):
     def get_latest_inp(self, obj):
         r = self._get_latest_report(obj)
         return r.inp if r else None
+
+    def get_latest_speed_index(self, obj):
+        r = self._get_latest_report(obj)
+        return r.speed_index if r else None
+
+    def get_latest_tbt(self, obj):
+        r = self._get_latest_report(obj)
+        return r.total_blocking_time if r else None
 
     def get_last_scan(self, obj):
         r = self._get_latest_report(obj)

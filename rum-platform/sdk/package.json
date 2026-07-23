@@ -1,0 +1,17 @@
+{
+  "name": "@perfmonitor/rum-sdk",
+  "version": "1.0.0",
+  "description": "Real User Monitoring SDK for React, Next.js and HTML apps",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc --declaration --outDir dist",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "keywords": ["rum", "monitoring", "performance", "react", "nextjs"],
+  "license": "MIT"
+}

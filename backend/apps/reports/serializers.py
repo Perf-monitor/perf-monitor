@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import PerformanceReport
+from .models import PerformanceReport, NetworkRequest
 
 
 class PerformanceReportSerializer(serializers.ModelSerializer):
@@ -51,3 +51,13 @@ class MonthlyAverageSerializer(serializers.Serializer):
     avg_accessibility = serializers.FloatField()
     avg_seo = serializers.FloatField()
     avg_best_practices = serializers.FloatField()
+
+
+class NetworkRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NetworkRequest
+        fields = [
+            "id", "url", "resource_type", "status_code", "mime_type",
+            "transfer_size", "resource_size", "duration_ms", "start_time_ms",
+            "protocol", "priority", "cache", "entity", "finished",
+        ]

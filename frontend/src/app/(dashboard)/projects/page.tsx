@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Plus, Search, RefreshCw, Trash2, ExternalLink, Play } from "lucide-react";
+import { Plus, Search, RefreshCw, Trash2, ExternalLink, Play, Loader2 } from "lucide-react";
 import { useProjects, useDeleteProject, useTriggerScan } from "@/hooks/useProjects";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +12,7 @@ import { toast } from "@/components/ui/Toaster";
 import {
   formatScore, formatMs, formatCLS, formatRelative,
   getScoreStatus, getFrameworkLabel, getEnvironmentLabel,
+  getLcpStatus, getClsStatus, getInpStatus, getSpeedIndexStatus, getTbtStatus, metricStatusColor,
 } from "@/lib/utils";
 import type { Project, FilterParams } from "@/types";
 
@@ -22,6 +23,8 @@ export default function ProjectsPage() {
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
+  const [scanningId, setScanningId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const params: FilterParams = {
     page,
@@ -36,20 +39,27 @@ export default function ProjectsPage() {
 
   const handleDelete = async (project: Project) => {
     if (!confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+    setDeletingId(project.id);
     try {
       await deleteMutation.mutateAsync(project.id);
       toast({ title: "Project deleted", variant: "success" });
     } catch {
       toast({ title: "Failed to delete project", variant: "destructive" });
+    } finally {
+      setDeletingId(null);
     }
   };
 
   const handleScan = async (project: Project) => {
+    setScanningId(project.id);
     try {
-      await scanMutation.mutateAsync({ projectId: project.id });
-      toast({ title: `Scan started for ${project.name}`, description: "Results will appear shortly.", variant: "success" });
+      const result = await scanMutation.mutateAsync({ projectId: project.id });
+      const count = (result as { reports_saved?: number })?.reports_saved ?? 0;
+      toast({ title: `Scan complete for ${project.name}`, description: `${count} report${count !== 1 ? "s" : ""} saved.`, variant: "success" });
     } catch {
       toast({ title: "Failed to trigger scan", variant: "destructive" });
+    } finally {
+      setScanningId(null);
     }
   };
 
@@ -96,8 +106,8 @@ export default function ProjectsPage() {
             <option key={e} value={e}>{getEnvironmentLabel(e)}</option>
           ))}
         </select>
-        <Button variant="outline" size="icon" onClick={() => refetch()} title="Refresh">
-          <RefreshCw className="h-4 w-4" />
+        <Button variant="outline" size="icon" onClick={() => refetch()} title="Refresh" loading={isLoading}>
+          {!isLoading && <RefreshCw className="h-4 w-4" />}
         </Button>
       </div>
 
@@ -107,14 +117,14 @@ export default function ProjectsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted/30">
-                {["Project", "Framework", "Environment", "Perf", "A11y", "SEO", "BP", "LCP", "CLS", "INP", "Status", "Last Scan", "Actions"].map((h) => (
+                {["Project", "Framework", "Environment", "Perf", "BP", "LCP", "CLS", "INP / TBT", "Load Time", "Status", "Last Scan", "Actions"].map((h) => (
                   <th key={h} className="px-4 py-3 text-left font-medium text-muted-foreground whitespace-nowrap">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {isLoading
-                ? Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} cols={13} />)
+                ? Array.from({ length: 5 }).map((_, i) => <TableRowSkeleton key={i} cols={13} />)  
                 : data?.results.map((project) => (
                     <tr key={project.id} className="border-b border-border hover:bg-muted/20 transition-colors">
                       <td className="px-4 py-3">
@@ -132,12 +142,28 @@ export default function ProjectsPage() {
                       <td className="px-4 py-3 font-bold tabular-nums" style={{ color: project.latest_performance !== null ? (project.latest_performance >= 90 ? "#22c55e" : project.latest_performance >= 80 ? "#f59e0b" : "#ef4444") : undefined }}>
                         {formatScore(project.latest_performance)}
                       </td>
-                      <td className="px-4 py-3 tabular-nums">{formatScore(project.latest_accessibility)}</td>
-                      <td className="px-4 py-3 tabular-nums">{formatScore(project.latest_seo)}</td>
                       <td className="px-4 py-3 tabular-nums">{formatScore(project.latest_best_practices)}</td>
-                      <td className="px-4 py-3 tabular-nums text-xs">{formatMs(project.latest_lcp)}</td>
-                      <td className="px-4 py-3 tabular-nums text-xs">{formatCLS(project.latest_cls)}</td>
-                      <td className="px-4 py-3 tabular-nums text-xs">{formatMs(project.latest_inp)}</td>
+                      <td className="px-4 py-3 tabular-nums text-xs font-medium" style={{ color: metricStatusColor(getLcpStatus(project.latest_lcp)) }}>
+                        {formatMs(project.latest_lcp)}
+                      </td>
+                      <td className="px-4 py-3 tabular-nums text-xs font-medium" style={{ color: metricStatusColor(getClsStatus(project.latest_cls)) }}>
+                        {formatCLS(project.latest_cls)}
+                      </td>
+                      <td
+                        className="px-4 py-3 tabular-nums text-xs font-medium"
+                        style={{ color: project.latest_inp !== null ? metricStatusColor(getInpStatus(project.latest_inp)) : metricStatusColor(getTbtStatus(project.latest_tbt)) }}
+                        title={project.latest_inp !== null ? "INP (real-user field data)" : "TBT shown as INP proxy — real-user INP unavailable for this site"}
+                      >
+                        {project.latest_inp !== null
+                          ? formatMs(project.latest_inp)
+                          : project.latest_tbt !== null
+                            ? <>{formatMs(project.latest_tbt)}<span className="ml-0.5 text-[10px] opacity-60">TBT</span></>
+                            : "—"
+                        }
+                      </td>
+                      <td className="px-4 py-3 tabular-nums text-xs font-medium" style={{ color: metricStatusColor(getSpeedIndexStatus(project.latest_speed_index)) }}>
+                        {formatMs(project.latest_speed_index)}
+                      </td>
                       <td className="px-4 py-3">
                         <Badge variant="status" status={getScoreStatus(project.latest_performance)}>
                           {project.status}
@@ -150,10 +176,14 @@ export default function ProjectsPage() {
                         <div className="flex items-center gap-1">
                           <button
                             onClick={() => handleScan(project)}
-                            className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
-                            title="Run scan"
+                            disabled={scanningId === project.id || deletingId === project.id}
+                            className="p-1.5 rounded hover:bg-accent transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:pointer-events-none"
+                            title={scanningId === project.id ? "Scanning…" : "Run scan"}
                           >
-                            <Play className="h-3.5 w-3.5" />
+                            {scanningId === project.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Play className="h-3.5 w-3.5" />
+                            }
                           </button>
                           <Link
                             href={project.url}
@@ -166,10 +196,14 @@ export default function ProjectsPage() {
                           </Link>
                           <button
                             onClick={() => handleDelete(project)}
-                            className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive"
-                            title="Delete"
+                            disabled={deletingId === project.id || scanningId === project.id}
+                            className="p-1.5 rounded hover:bg-destructive/10 transition-colors text-muted-foreground hover:text-destructive disabled:opacity-50 disabled:pointer-events-none"
+                            title={deletingId === project.id ? "Deleting…" : "Delete"}
                           >
-                            <Trash2 className="h-3.5 w-3.5" />
+                            {deletingId === project.id
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin text-destructive" />
+                              : <Trash2 className="h-3.5 w-3.5" />
+                            }
                           </button>
                         </div>
                       </td>

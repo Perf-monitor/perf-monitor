@@ -7,6 +7,7 @@ urlpatterns = [
     path("reports/project/<uuid:project_id>/", views.ProjectReportListView.as_view(), name="project_reports"),
     path("reports/project/<uuid:project_id>/export/csv/", views.export_csv, name="export_csv"),
     path("reports/compare/", views.compare_reports, name="compare_reports"),
+    path("reports/<uuid:report_id>/network/", views.network_requests_view, name="network_requests"),
     path("dashboard/", views.dashboard_stats, name="dashboard_stats"),
     path("history/", views.history_view, name="history"),
     path("trends/<uuid:project_id>/", views.project_trend, name="project_trend"),

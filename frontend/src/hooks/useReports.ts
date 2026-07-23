@@ -73,3 +73,12 @@ export function useHistory(params?: FilterParams) {
     staleTime: 30_000,
   });
 }
+
+export function useNetworkRequests(reportId: string | undefined, params?: { resource_type?: string; status?: string }) {
+  return useQuery({
+    queryKey: ["network-requests", reportId, params],
+    queryFn: () => reportsService.getNetworkRequests(reportId!, params),
+    enabled: !!reportId,
+    staleTime: 60_000,
+  });
+}

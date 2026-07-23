@@ -79,6 +79,66 @@ export function getScoreStatus(score: number | null): ProjectStatus {
   return "critical";
 }
 
+// Google Web Vitals thresholds
+// https://web.dev/articles/vitals
+export function getLcpStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 2500) return "good";
+  if (ms <= 4000) return "needs-improvement";
+  return "poor";
+}
+
+export function getClsStatus(cls: number | null): MetricStatus {
+  if (cls === null) return "unknown";
+  if (cls <= 0.1) return "good";
+  if (cls <= 0.25) return "needs-improvement";
+  return "poor";
+}
+
+export function getInpStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 200) return "good";
+  if (ms <= 500) return "needs-improvement";
+  return "poor";
+}
+
+export function getFcpStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 1800) return "good";
+  if (ms <= 3000) return "needs-improvement";
+  return "poor";
+}
+
+export function getTtfbStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 800) return "good";
+  if (ms <= 1800) return "needs-improvement";
+  return "poor";
+}
+
+export function getSpeedIndexStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 2500) return "good";
+  if (ms <= 4000) return "needs-improvement";
+  return "poor";
+}
+
+export function getTbtStatus(ms: number | null): MetricStatus {
+  if (ms === null) return "unknown";
+  if (ms <= 200) return "good";
+  if (ms <= 600) return "needs-improvement";
+  return "poor";
+}
+
+export function metricStatusColor(status: MetricStatus): string {
+  switch (status) {
+    case "good": return "#22c55e";
+    case "needs-improvement": return "#f59e0b";
+    case "poor": return "#ef4444";
+    default: return "#9ca3af";
+  }
+}
+
 export function getSeverityColor(severity: AlertSeverity): string {
   switch (severity) {
     case "critical":

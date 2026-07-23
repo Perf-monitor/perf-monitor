@@ -6,6 +6,7 @@ import type {
   MonthlyAverage,
   PaginatedResponse,
   FilterParams,
+  NetworkRequestsResponse,
 } from "@/types";
 
 export const reportsService = {
@@ -53,6 +54,11 @@ export const reportsService = {
     const params = new URLSearchParams();
     ids.forEach((id) => params.append("ids", id));
     const { data } = await apiClient.get<PerformanceReport[]>(`/reports/compare/?${params}`);
+    return data;
+  },
+
+  async getNetworkRequests(reportId: string, params?: { resource_type?: string; status?: string }): Promise<NetworkRequestsResponse> {
+    const { data } = await apiClient.get<NetworkRequestsResponse>(`/reports/${reportId}/network/`, { params });
     return data;
   },
 

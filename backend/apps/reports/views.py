@@ -10,13 +10,14 @@ from rest_framework import generics, permissions, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from .models import PerformanceReport
 from .serializers import (
     PerformanceReportSerializer,
     PerformanceTrendSerializer,
     DashboardStatsSerializer,
     MonthlyAverageSerializer,
+    NetworkRequestSerializer,
 )
+from .models import PerformanceReport, NetworkRequest
 from .filters import ReportFilter
 from apps.projects.models import Project
 
@@ -238,3 +239,32 @@ def compare_reports(request):
 
     serializer = PerformanceReportSerializer(qs, many=True)
     return Response(serializer.data)
+
+
+@api_view(["GET"])
+@permission_classes([permissions.IsAuthenticated])
+def network_requests_view(request, report_id):
+    """Return all network requests captured during a specific report's Lighthouse scan."""
+    user = request.user
+    try:
+        report = PerformanceReport.objects.select_related("project").get(id=report_id)
+    except PerformanceReport.DoesNotExist:
+        return Response({"error": "Report not found."}, status=404)
+
+    if not user.is_admin and report.project.owner != user:
+        return Response({"error": "Not found."}, status=404)
+
+    qs = report.network_requests.all()
+
+    resource_type = request.query_params.get("resource_type")
+    if resource_type:
+        qs = qs.filter(resource_type__iexact=resource_type)
+
+    status_filter = request.query_params.get("status")
+    if status_filter == "error":
+        qs = qs.filter(status_code__gte=400)
+    elif status_filter == "success":
+        qs = qs.filter(status_code__lt=400)
+
+    serializer = NetworkRequestSerializer(qs, many=True)
+    return Response({"report_id": str(report_id), "count": qs.count(), "results": serializer.data})

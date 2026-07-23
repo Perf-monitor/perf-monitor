@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "apps.reports",
     "apps.alerts",
     "apps.settings_app",
+    "apps.rum",
 ]
 
 MIDDLEWARE = [

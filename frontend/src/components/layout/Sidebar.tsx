@@ -12,6 +12,7 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -22,6 +23,7 @@ const NAV_ITEMS = [
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/history", label: "History", icon: History },
   { href: "/alerts", label: "Alerts", icon: Bell },
+  { href: "/monitoring", label: "RUM Monitor", icon: Activity },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 
