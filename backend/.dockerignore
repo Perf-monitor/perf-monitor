@@ -1,0 +1,47 @@
+# Git
+.git/
+.gitignore
+
+# Environment & secrets
+.env
+.env.*
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+
+# Django artifacts
+db.sqlite3
+*.sqlite3
+logs/
+staticfiles/
+media/
+
+# Tests & coverage
+tests/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Docker
+Dockerfile
+.dockerignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
