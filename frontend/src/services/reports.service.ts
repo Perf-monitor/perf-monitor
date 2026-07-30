@@ -63,7 +63,7 @@ export const reportsService = {
   },
 
   getExportCsvUrl(projectId: string): string {
-    const base = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const base = process.env.NEXT_PUBLIC_API_URL || "https://api-v1.cameeto.com";
     return `${base}/api/v1/reports/project/${projectId}/export/csv/`;
   },
 };

@@ -121,7 +121,7 @@ function CreateAppModal({ onClose }: { onClose: () => void }) {
 }
 
 function IntegrationSnippet({ app }: { app: RumApplication }) {
-  const endpoint = typeof window !== "undefined" ? `${window.location.protocol}//${window.location.hostname}:8000` : "http://localhost:8000";
+  const endpoint = process.env.NEXT_PUBLIC_API_URL || "https://api-v1.cameeto.com";
   const reactSnippet = `import { initMonitoring } from "@perfmonitor/rum-sdk";
 
 initMonitoring({
