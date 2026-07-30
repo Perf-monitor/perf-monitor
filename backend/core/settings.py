@@ -227,12 +227,6 @@ LOGGING = {
     },
     "handlers": {
         "console": {"class": "logging.StreamHandler", "formatter": "verbose"},
-        "file": {
-            "class": "logging.FileHandler",
-            "filename": BASE_DIR / "logs" / "django.log",
-            "formatter": "verbose",
-            "delay": True,
-        },
     },
     "root": {"handlers": ["console"], "level": "INFO"},
     "loggers": {
