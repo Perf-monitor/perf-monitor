@@ -1,7 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import Cookies from "js-cookie";
 
-// const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api-v1.cameeto.com";
+//  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "https://api-v1.cameeto.com";
 const API_BASE_URL = "https://api-v1.cameeto.com";
 
 export const apiClient = axios.create({
