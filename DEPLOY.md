@@ -212,8 +212,8 @@ Once you have the Vercel URL (e.g. `https://monitor-perf.vercel.app`), update on
 # Edit the .env file
 nano ~/monitor_Perf/backend/.env
 # Update both lines:
-# CORS_ALLOWED_ORIGINS=https://your-app.vercel.app,https://api-v1.cameeto.com
-# CSRF_TRUSTED_ORIGINS=https://api-v1.cameeto.com,https://your-app.vercel.app
+# CORS_ALLOWED_ORIGINS=https://perf-monitor.cameeto.com,https://api-v1.cameeto.com
+# CSRF_TRUSTED_ORIGINS=https://api-v1.cameeto.com,https://perf-monitor.cameeto.com
 
 # Restart backend
 docker compose restart backend

@@ -121,10 +121,10 @@ DB_PORT=5432
 REDIS_URL=redis://redis:6379/0
 
 # CORS
-CORS_ALLOWED_ORIGINS=https://$DOMAIN
+CORS_ALLOWED_ORIGINS=https://perf-monitor.cameeto.com,https://$DOMAIN
 
 # CSRF (required for Django Admin over HTTPS)
-CSRF_TRUSTED_ORIGINS=https://$DOMAIN
+CSRF_TRUSTED_ORIGINS=https://$DOMAIN,https://perf-monitor.cameeto.com
 
 # Google PageSpeed API
 GOOGLE_PAGESPEED_API_KEY=
