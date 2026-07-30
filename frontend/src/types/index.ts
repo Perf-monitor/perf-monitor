@@ -298,3 +298,169 @@ export interface FilterParams {
   min_performance_score?: number;
   max_performance_score?: number;
 }
+
+// ── Uptime Monitoring Types ───────────────────────────────────────────────────
+
+export type UptimeStatus = "up" | "down" | "timeout" | "error" | "unknown";
+export type SSLCertStatus =
+  | "healthy"
+  | "expiring_soon"
+  | "expired"
+  | "invalid"
+  | "hostname_mismatch"
+  | "handshake_failed"
+  | "disabled"
+  | "unknown";
+export type NotificationProviderType =
+  | "email"
+  | "slack"
+  | "teams"
+  | "discord"
+  | "telegram"
+  | "webhook";
+export type SSLAlertType =
+  | "expiring_soon"
+  | "expired"
+  | "invalid"
+  | "hostname_mismatch"
+  | "handshake_failed";
+export type SSLAlertSeverity = "info" | "warning" | "critical";
+export type SSLAlertStatus = "open" | "acknowledged" | "resolved";
+
+export interface MonitoredWebsite {
+  id: string;
+  name: string;
+  url: string;
+  protocol: "http" | "https" | "tcp" | "ping";
+  check_interval: number;
+  active: boolean;
+  ssl_monitoring: boolean;
+  ssl_expiry_alert_days: number;
+  timeout_seconds: number;
+  expected_status_code: number;
+  keyword_check: string;
+  verify_ssl: boolean;
+  notes: string;
+  created_at: string;
+  updated_at: string;
+  current_status: UptimeStatus;
+  last_checked: string | null;
+  uptime_percentage: number | null;
+  active_incident: { id: string; started_at: string } | null;
+  ssl_status: SSLCertStatus;
+  latest_response_time: number | null;
+}
+
+export interface MonitoredWebsiteFormData {
+  name: string;
+  url: string;
+  protocol?: "http" | "https" | "tcp" | "ping";
+  check_interval?: number;
+  active?: boolean;
+  ssl_monitoring?: boolean;
+  ssl_expiry_alert_days?: number;
+  timeout_seconds?: number;
+  expected_status_code?: number;
+  keyword_check?: string;
+  verify_ssl?: boolean;
+  notes?: string;
+}
+
+export interface MonitoringCheck {
+  id: string;
+  website: string;
+  status: UptimeStatus;
+  response_time_ms: number | null;
+  http_status_code: number | null;
+  error_message: string;
+  checked_at: string;
+}
+
+export interface Incident {
+  id: string;
+  website: string;
+  website_name: string;
+  website_url: string;
+  started_at: string;
+  ended_at: string | null;
+  root_cause: string;
+  acknowledged: boolean;
+  duration_seconds: number | null;
+  is_ongoing: boolean;
+}
+
+export interface SSLCheck {
+  id: string;
+  website: string;
+  website_name?: string;
+  website_url?: string;
+  ssl_monitoring?: boolean;
+  cert_status: SSLCertStatus;
+  issuer: string;
+  common_name: string;
+  valid_from: string | null;
+  valid_to: string | null;
+  days_remaining: number | null;
+  error_message: string;
+  checked_at: string | null;
+}
+
+export interface SSLAlert {
+  id: string;
+  website: string;
+  website_name: string;
+  website_url: string;
+  ssl_check: string | null;
+  alert_type: SSLAlertType;
+  severity: SSLAlertSeverity;
+  days_remaining: number | null;
+  status: SSLAlertStatus;
+  generated_at: string;
+}
+
+export interface NotificationProvider {
+  id: string;
+  name: string;
+  provider_type: NotificationProviderType;
+  enabled: boolean;
+  config: Record<string, string>;
+  notify_on_down: boolean;
+  notify_on_recovery: boolean;
+  notify_on_ssl_expiring: boolean;
+  notify_on_ssl_expired: boolean;
+  notify_on_ssl_invalid: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface UptimeDashboardStats {
+  total_websites: number;
+  websites_up: number;
+  websites_down: number;
+  active_incidents: number;
+  overall_uptime_pct: number;
+  avg_response_time_ms: number;
+  ssl_expiring_soon: number;
+  ssl_expired: number;
+  ssl_invalid: number;
+}
+
+export interface UptimeFilterParams {
+  page?: number;
+  page_size?: number;
+  search?: string;
+  ordering?: string;
+  active?: boolean;
+  protocol?: string;
+  check_interval?: number;
+  status?: string;
+  website?: string;
+  checked_after?: string;
+  checked_before?: string;
+  started_after?: string;
+  started_before?: string;
+  cert_status?: string;
+  alert_type?: string;
+  severity?: string;
+  ongoing?: string;
+}

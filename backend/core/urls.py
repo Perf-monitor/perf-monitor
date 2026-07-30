@@ -13,6 +13,7 @@ urlpatterns = [
     path("api/v1/", include("apps.alerts.urls")),
     path("api/v1/", include("apps.settings_app.urls")),
     path("api/v1/", include("apps.rum.urls")),
+    path("api/v1/", include("apps.uptime.urls")),
     # Swagger / OpenAPI
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),

@@ -79,18 +79,6 @@ services:
       - ./backend:/app
     command: celery -A core beat --loglevel=info --scheduler django_celery_beat.schedulers:DatabaseScheduler
 
-  frontend:
-    build: ./frontend
-    restart: unless-stopped
-    env_file:
-      - ./frontend/.env.local
-    depends_on:
-      - backend
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
-      - /app/.next
-
   nginx:
     image: nginx:alpine
     restart: unless-stopped
@@ -99,7 +87,6 @@ services:
       - "443:443"
     depends_on:
       - backend
-      - frontend
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro

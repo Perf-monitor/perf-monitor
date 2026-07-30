@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class UptimeConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.uptime"
+    verbose_name = "Uptime Monitoring"
