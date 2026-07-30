@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { TableRowSkeleton } from "@/components/ui/Skeleton";
 import { formatScore, formatMs, formatCLS, formatRelative, getScoreStatus } from "@/lib/utils";
-import type { FilterParams } from "@/types";
+import type { FilterParams, Strategy } from "@/types";
 
 export default function ReportsPage() {
   const [page, setPage] = useState(1);
@@ -17,7 +17,7 @@ export default function ReportsPage() {
 
   const params: FilterParams = {
     page,
-    strategy: strategy || undefined,
+    strategy: (strategy as Strategy) || undefined,
     min_performance_score: minScore ? Number(minScore) : undefined,
     max_performance_score: maxScore ? Number(maxScore) : undefined,
   };
